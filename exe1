@@ -1,0 +1,62 @@
+using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
+
+ //Представляє собак
+public class Dog
+{
+    public string Name { get; set; }
+    public int Weight { get; set; }
+    public string Color { get; set; }
+}
+
+//Представляє список собак
+public class Dogs
+{
+    public List<Dog> DogList { get; set; }
+
+    public Dogs()
+    {
+        DogList = new List<Dog>();
+    }
+
+    //Додавання собаки до списку
+    public void AddDog(Dog dog)
+    {
+        DogList.Add(dog);
+    }
+
+    //Виведення інформації про всіх собак у списку
+    public void DisplayDogs()
+    {
+        foreach (var dog in DogList)
+        {
+            Console.WriteLine(@"Ім'я: {dog.Name}, Вага: {dog.Weight} кг, Колір: {dog.Color}");
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        string xml = "<?xml version=\"1.0\" ?><dogs><dog><dogName>Кулька</dogName><dogWeight caption=\"кг\">18</dogWeight><dogColor>рудий із чорними підпалинами</dogColor></dog><dog><dogName>Тузик</dogName><dogWeight caption=\"кг\">10</dogWeight><dogColor>білий із чорними плямами</dogColor></dog><dog><dogName>Бобік</dogName><dogWeight caption=\"кг\">2</dogWeight><dogColor>біло-сірий</dogColor></dog><dog><dogName>Трезор</dogName><dogWeight caption=\"кг\">25</dogWeight><dogColor>чорний</dogColor></dog></dogs>";
+
+        //Розбираємо XML і створюємо об'єкт класу Dogs
+        var dogs = new Dogs();
+        var xmlDoc = XDocument.Parse(xml);
+        foreach (var dogElement in xmlDoc.Root.Elements("dog"))
+        {
+            var dog = new Dog
+            {
+                Name = dogElement.Element("dogName").Value,
+                Weight = Convert.ToInt32(dogElement.Element("dogWeight").Value),
+                Color = dogElement.Element("dogColor").Value
+            };
+            dogs.AddDog(dog);
+        }
+
+        //Виводимо інформацію  
+        dogs.DisplayDogs();
+    }
+}
