@@ -1,0 +1,101 @@
+using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
+
+//Клас, що представляє товар
+public class Item
+{
+    public string Title { get; set; }
+    public int Quantity { get; set; }
+    public decimal Price { get; set; }
+}
+
+//Клас, що представляє замовлення
+public class Order
+{
+    public string ShipToName { get; set; }
+    public string ShipToStreet { get; set; }
+    public string ShipToAddress { get; set; }
+    public string ShipToCountry { get; set; }
+    public List<Item> Items { get; set; }
+
+    public Order()
+    {
+        Items = new List<Item>();
+    }
+
+    //Додавання товару до замовлення
+    public void AddItem(Item item)
+    {
+        Items.Add(item);
+    }
+
+    //Виведення інформації про замовлення
+    public void DisplayOrder()
+    {
+        Console.WriteLine("Доставка до:");
+        Console.WriteLine(@"Ім'я: {ShipToName}");
+        Console.WriteLine(@"Вулиця: {ShipToStreet}");
+        Console.WriteLine(@"Адреса: {ShipToAddress}");
+        Console.WriteLine(@"Країна: {ShipToCountry}");
+        Console.WriteLine(@"Товари в замовленні:");
+        foreach (var item in Items)
+        {
+            Console.WriteLine(@"Назва: {item.Title}");
+            Console.WriteLine(@"Кількість: {item.Quantity}");
+            Console.WriteLine(@"Ціна: ${item.Price}");
+            Console.WriteLine();
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        string xml = "<?xml version=\"1.0\" ?><shipOrder><shipTo><name>Tove Svendson</name><street>Ragnhildvei 2</street><address>4000 Stavanger</address><country>Norway</country></shipTo><items><item><title>Empire Burlesque</title><quantity>1</quantity><price>10.90</price></item><item><title>Hide your heart</title><quantity>1</quantity><price>9.90</price></item></items></shipOrder>";
+
+        // Розбираємо XML і створюємо об'єкт класу Order
+        var order = new Order();
+        var xmlDoc = XDocument.Parse(xml);
+        var shipToElement = xmlDoc.Root.Element("shipTo");
+        order.ShipToName = shipToElement.Element("name").Value;
+        order.ShipToStreet = shipToElement.Element("street").Value;
+        order.ShipToAddress = shipToElement.Element("address").Value;
+        order.ShipToCountry = shipToElement.Element("country").Value;
+
+        foreach (var itemElement in xmlDoc.Root.Element("items").Elements("item"))
+        {
+            var item = new Item();
+            item.Title = itemElement.Element("title").Value;
+
+            int quantity;
+            if (int.TryParse(itemElement.Element("quantity").Value, out quantity))
+            {
+                item.Quantity = quantity;
+            }
+            else
+            {
+                Console.WriteLine("Помилка: Некоректне значення для кількості товару.");
+              
+            }
+
+            decimal price;
+            if (decimal.TryParse(itemElement.Element("price").Value, out price))
+            {
+                item.Price = price;
+            }
+            else
+            {
+                Console.WriteLine("Помилка: Некоректне значення для ціни товару.");
+                 
+            }
+
+            order.AddItem(item);
+
+        }
+
+
+        order.DisplayOrder();
+    }
+}
